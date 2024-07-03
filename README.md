@@ -1,6 +1,6 @@
 # Vineyard Expanded and Enhanced 
 
-This extension started as a basic extension created by kendalgotto which i loved and then wanted to add sruff onto it so it has become so much more the rest of the extension waa developed by me [reddit:u/XxIIIBanIIIxX](https://www.reddit.com/user/XxIIIBanIIIxX).
+This extension started as a basic extension created by **KendallGoto** which i loved and then wanted to add sruff onto it so it has become so much more the rest of the extension waa developed by me [reddit:u/XxIIIBanIIIxX](https://www.reddit.com/user/XxIIIBanIIIxX).
 
 Free for personal use. Not meant to be sold.
 
