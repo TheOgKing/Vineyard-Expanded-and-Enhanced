@@ -61,3 +61,5 @@ Background and Scanned Items
 • Multiple Cursor Effects
 
 • Enable New Items Only Option: Only new items for the current page are displayed.
+
+# if there are any problems or requests  feel free to open an issue ticket or dm me on reddit and ill get to it as soon as a i can.
