@@ -1,3 +1,7 @@
+# Disclaimer
+Please note that these enhancements and customizations may be against Amazon's Terms of Service (ToS). By using these modifications, you do so at your own risk. I am not responsible for any actions taken by Amazon, including but not limited to account suspension or termination, as a result of using these modifications. Use at your own discretion.
+
+
 # Vineyard Expanded and Enhanced 
 
 This extension started as a basic extension created by **KendallGoto** which i loved and then wanted to add sruff onto it so it has become so much more the rest of the extension waa developed by me [reddit:u/XxIIIBanIIIxX](https://www.reddit.com/user/XxIIIBanIIIxX).
