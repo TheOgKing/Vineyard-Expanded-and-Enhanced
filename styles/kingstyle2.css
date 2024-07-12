@@ -4361,3 +4361,7 @@ div#customizationInputs {
 .extension-info p {
   width: 375px;
 }
+
+select#custom-pointer {
+  background-color: aliceblue;
+}

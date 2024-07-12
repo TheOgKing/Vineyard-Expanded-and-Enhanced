@@ -2,14 +2,17 @@
 	"manifest_version": 3,
 	"name": "Vineyard Expanded and enhanced",
 	"description": "Helper Extension for Amazon Vine",
-	"version": "1.9",
+	"version": "1.9.1",
 	"action": {
 		"default_icon": "vineyard.png"
 	},
 	"web_accessible_resources": [
 		{
 			"resources": [
-				"scripts/vineyard.js"
+				"scripts/jszip.min.js",
+				"scripts/vineyard.js",
+                "cursors/*.js",
+				"pointers/*.js"
 			],
 			"matches": [
 				"http://*/*",

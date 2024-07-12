@@ -994,15 +994,7 @@ document.addEventListener('keydown', function(event) {
 
 
 (function() {
-    // Function to dynamically load JSZip library
-    function loadJSZip(callback) {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js';
-        script.onload = callback;
-        document.head.appendChild(script);
-    }
-
-    // Function to inject custom CSS into the document
+// Function to inject custom CSS into the document
     function injectCustomCSS() {
         const style = document.createElement('style');
         style.innerHTML = `
@@ -1933,17 +1925,11 @@ function applySavedBackground() {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
         initSettingsButton();
-        loadJSZip(function() {
-            // JSZip is loaded, you can now use it in your backup/restore functions
-        });
         applySavedBackground();
         initExtraSettings(); // Initialize the extra settings
     });
 } else {
     initSettingsButton();
-    loadJSZip(function() {
-        // JSZip is loaded, you can now use it in your backup/restore functions
-    });
     applySavedBackground();
     initExtraSettings(); // Initialize the extra settings
 }
@@ -2503,7 +2489,6 @@ ensureRandomButton();
     });
 })();
 
-// Function to initialize more extra settings
 function initMoreExtraSettings() {
     const moreExtraSettingsHTML = `
         <div id="more-extra-settings">
@@ -2529,6 +2514,7 @@ function initMoreExtraSettings() {
                     <option value="rainbowCursor">Rainbow</option>
                     <option value="clockCursor">Clock</option>
                     <option value="characterCursor">Character</option>
+                    <option value="starFadeCursor">Star Fade</option>
                 </select>
             </label>
             <div id="cursorCustomization" style="display: none;">
@@ -2539,16 +2525,13 @@ function initMoreExtraSettings() {
         </div>
     `;
 
-    // Insert the more extra settings into the settings modal
     const settingsModalBody = document.querySelector('#customSettingsModal .custom-modal-body');
     settingsModalBody.insertAdjacentHTML('beforeend', moreExtraSettingsHTML);
 
-    // Function to change font size
     function changeFontSize(size) {
         document.body.style.fontSize = size + 'px';
     }
 
-    // Function to inject CSS for hover zoom
     function injectHoverCSS() {
         const hoverCSS = `
             #vvp-items-grid-container .vvp-item-tile:hover img {
@@ -2579,7 +2562,6 @@ function initMoreExtraSettings() {
         document.head.appendChild(styleSheet);
     }
 
-    // Function to remove injected CSS for hover zoom
     function removeHoverCSS() {
         const hoverCSS = document.getElementById('hoverZoomCSS');
         if (hoverCSS) {
@@ -2587,7 +2569,6 @@ function initMoreExtraSettings() {
         }
     }
 
-    // Event listeners for the new More Extra Settings options
     document.getElementById('fontSizeInput').addEventListener('change', function() {
         const fontSize = this.value;
         localStorage.setItem('fontSize', fontSize);
@@ -2604,11 +2585,6 @@ function initMoreExtraSettings() {
         }
     });
 
-    // Load the cursor-effects script and initialize the selected cursor effect
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/cursor-effects@latest/dist/browser.js';
-    document.head.appendChild(script);
-
     let cursorEffectInstance = null;
 
     function applyCursorEffect(effect, options = {}) {
@@ -2618,44 +2594,49 @@ function initMoreExtraSettings() {
 
         switch (effect) {
             case 'fairyDustCursor':
-                cursorEffectInstance = new cursoreffects.fairyDustCursor(options);
+                cursorEffectInstance = fairyDustCursor(options);
                 break;
             case 'emojiCursor':
-                cursorEffectInstance = new cursoreffects.emojiCursor(options);
+                cursorEffectInstance = emojiCursor(options);
                 break;
             case 'springyEmojiCursor':
-                cursorEffectInstance = new cursoreffects.springyEmojiCursor(options);
+                cursorEffectInstance = springyEmojiCursor(options);
                 break;
             case 'ghostCursor':
-                cursorEffectInstance = new cursoreffects.ghostCursor(options);
+                cursorEffectInstance = ghostCursor(options);
                 break;
             case 'trailingCursor':
-                cursorEffectInstance = new cursoreffects.trailingCursor(options);
+                cursorEffectInstance = trailingCursor(options);
                 break;
             case 'textFlag':
-                cursorEffectInstance = new cursoreffects.textFlag(options);
+                cursorEffectInstance = textFlag(options);
                 break;
             case 'followingDotCursor':
-                cursorEffectInstance = new cursoreffects.followingDotCursor(options);
+                cursorEffectInstance = followingDotCursor(options);
                 break;
             case 'bubbleCursor':
-                cursorEffectInstance = new cursoreffects.bubbleCursor(options);
+                cursorEffectInstance = bubbleCursor(options);
                 break;
             case 'snowflakeCursor':
-                cursorEffectInstance = new cursoreffects.snowflakeCursor(options);
+                cursorEffectInstance = snowflakeCursor(options);
                 break;
             case 'rainbowCursor':
-                cursorEffectInstance = new cursoreffects.rainbowCursor(options);
+                cursorEffectInstance = rainbowCursor(options);
                 break;
             case 'clockCursor':
-                cursorEffectInstance = new cursoreffects.clockCursor(options);
+                cursorEffectInstance = clockCursor(options);
                 break;
             case 'characterCursor':
-                cursorEffectInstance = new cursoreffects.characterCursor(options);
+                cursorEffectInstance = characterCursor(options);
+                break;
+            case 'starFadeCursor':
+                cursorEffectInstance = StarFadeCursor(options);
                 break;
             default:
                 cursorEffectInstance = null;
         }
+
+        console.log('Applied cursor effect:', effect, 'with options:', options);
     }
 
     function showCustomizationOptions(effect) {
@@ -2755,125 +2736,252 @@ function initMoreExtraSettings() {
         applyCursorEffect(selectedEffect, options);
     });
 
-    script.onload = () => {
-        // Apply settings on load
-        const savedFontSize = localStorage.getItem('fontSize');
-        if (savedFontSize) {
-            document.getElementById('fontSizeInput').value = savedFontSize;
-            changeFontSize(savedFontSize);
-        }
+    // Apply settings on load
+    const savedFontSize = localStorage.getItem('fontSize');
+    if (savedFontSize) {
+        document.getElementById('fontSizeInput').value = savedFontSize;
+        changeFontSize(savedFontSize);
+    }
 
-        if (localStorage.getItem('hoverCSSInjection') === 'true') {
-            document.getElementById('hoverCSSInjection').checked = true;
-            injectHoverCSS();
-        } else {
-            document.getElementById('hoverCSSInjection').checked = false;
-            removeHoverCSS();
-        }
+    if (localStorage.getItem('hoverCSSInjection') === 'true') {
+        document.getElementById('hoverCSSInjection').checked = true;
+        injectHoverCSS();
+    } else {
+        document.getElementById('hoverCSSInjection').checked = false;
+        removeHoverCSS();
+    }
 
-        const savedCursorEffect = localStorage.getItem('cursorEffect');
-        if (savedCursorEffect) {
-            document.getElementById('cursorEffectSelector').value = savedCursorEffect;
-            showCustomizationOptions(savedCursorEffect);
-            const savedPrefs = localStorage.getItem(`cursorPrefs_${savedCursorEffect}`);
-            const options = savedPrefs ? JSON.parse(savedPrefs) : {};
-            applyCursorEffect(savedCursorEffect, options);
-        }
-    };
+    const savedCursorEffect = localStorage.getItem('cursorEffect');
+    if (savedCursorEffect) {
+        document.getElementById('cursorEffectSelector').value = savedCursorEffect;
+        showCustomizationOptions(savedCursorEffect);
+        const savedPrefs = localStorage.getItem(`cursorPrefs_${savedCursorEffect}`);
+        const options = savedPrefs ? JSON.parse(savedPrefs) : {};
+        applyCursorEffect(savedCursorEffect, options);
+    }
 }
 
-// Initialize the more extra settings when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
-        initMoreExtraSettings(); // Initialize the more extra settings
+        initMoreExtraSettings();
     });
 } else {
-    initMoreExtraSettings(); // Initialize the more extra settings
+    initMoreExtraSettings();
 }
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function initMoreExtraExtraSettings() {
-    const moreExtraExtraSettingsHTML = `
-        <div id="more-extra-extra-settings" style="padding: 10px;">
-            <h3>Extra Extra Settings</h3>
-            <label><input type="checkbox" id="newItemsOnly"> Enable New Items Only</label>
-            <div class="extension-info">
-                <p>This extension was developed by <a href="https://www.reddit.com/user/XxIIIBanIIIxX" target="_blank">reddit:u/XxIIIBanIIIxX</a>.</p>
-                <p>Free for personal use. Not meant to be sold.</p>
-                <p>I spent at least a hundred hours developing this extension. Despite starting with no coding knowledge, I am proud of what it has become. Initially, I planned to keep it to myself, but I realized it could benefit others, so I'm releasing it for everyone to enjoy.</p>
-                <p>If you appreciate the work and feel like donating, you can do so via Cash App: <strong>$KingGoBrr</strong>.</p>
-            </div>
-        </div>
-    `;
 
+
+class ClickSpark extends HTMLElement {
+    constructor() {
+      super();
+      this.attachShadow({ mode: "open" });
+      this.root = document.documentElement;
+      this.svg = null;
+      this.enabled = false; // Track whether the effect is enabled
+    }
+  
+    get activeEls() {
+      return this.getAttribute("active-on");
+    }
+  
+    connectedCallback() {
+      this.setupSpark();
+  
+      this.root.addEventListener("click", (e) => {
+        if (!this.enabled) return; // Only run if enabled
+        if (this.activeEls && !e.target.matches(this.activeEls)) return;
+  
+        this.setSparkPosition(e);
+        this.animateSpark();
+      });
+    }
+  
+    animateSpark() {
+      let sparks = [...this.svg.children];
+      let size = parseInt(sparks[0].getAttribute("y1"));
+      let offset = size / 2 + "px";
+  
+      let keyframes = (i) => {
+        let deg = `calc(${i} * (360deg / ${sparks.length}))`;
+  
+        return [
+          {
+            strokeDashoffset: size * 3,
+            transform: `rotate(${deg}) translateY(${offset})`
+          },
+          {
+            strokeDashoffset: size,
+            transform: `rotate(${deg}) translateY(0)`
+          }
+        ];
+      };
+  
+      let options = {
+        duration: 660,
+        easing: "cubic-bezier(0.25, 1, 0.5, 1)",
+        fill: "forwards"
+      };
+  
+      sparks.forEach((spark, i) => spark.animate(keyframes(i), options));
+    }
+  
+    setSparkPosition(e) {
+      let rect = this.root.getBoundingClientRect();
+  
+      this.svg.style.left =
+        e.clientX - rect.left - this.svg.clientWidth / 2 + "px";
+      this.svg.style.top =
+        e.clientY - rect.top - this.svg.clientHeight / 2 + "px";
+    }
+  
+    setupSpark() {
+      let template = `
+        <style>
+          :host {
+            display: contents;
+          }
+          
+          svg {
+            pointer-events: none;
+            position: absolute;
+            rotate: -20deg;
+            stroke: var(--click-spark-color, currentColor);
+          }
+  
+          line {
+            stroke-dasharray: 30;
+            stroke-dashoffset: 30;
+            transform-origin: center;
+          }
+        </style>
+        <svg width="30" height="30" viewBox="0 0 100 100" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="4">
+          ${Array.from({ length: 8 }, () => '<line x1="50" y1="30" x2="50" y2="4"/>').join("")}
+        </svg>
+      `;
+  
+      this.shadowRoot.innerHTML = template;
+      this.svg = this.shadowRoot.querySelector("svg");
+    }
+  
+    toggle(enabled) {
+      this.enabled = enabled;
+    }
+  }
+  
+  customElements.define("click-spark", ClickSpark);
+  
+  function initMoreExtraExtraSettings() {
+    const moreExtraExtraSettingsHTML = `
+      <div id="more-extra-extra-settings" style="padding: 10px;">
+        <h3>Extra Extra Settings</h3>
+        <label><input type="checkbox" id="newItemsOnly"> Enable New Items Only</label>
+        <label><input type="checkbox" id="clickSparkToggle"> Enable Click Spark</label>
+        <div class="extension-info">
+          <p>This extension was developed by <a href="https://www.reddit.com/user/XxIIIBanIIIxX" target="_blank">reddit:u/XxIIIBanIIIxX</a>.</p>
+          <p>Free for personal use. Not meant to be sold.</p>
+          <p>I spent at least a hundred hours developing this extension. Despite starting with no coding knowledge, I am proud of what it has become. Initially, I planned to keep it to myself, but I realized it could benefit others, so I'm releasing it for everyone to enjoy.</p>
+          <div class="support-section">
+            <h4>Support</h4>
+            <p>If you appreciate the work and feel like donating, you can do so via:</p>
+            <p>Cash App: <strong>$KingGoBrr</strong></p>
+          </div>
+        </div>
+      </div>
+    `;
+  
     // Insert the more extra extra settings into the settings modal
     const settingsModalBody = document.querySelector('#customSettingsModal .custom-modal-body');
     settingsModalBody.insertAdjacentHTML('beforeend', moreExtraExtraSettingsHTML);
-
+  
     // Function to get found date for an item ASIN from the database
     async function getFoundDateForASIN(ASIN) {
-        const db = await openDB('vineyard', 6);
-        const item = await db.get('items', ASIN);
-        if (item) {
-            return item.foundDate;
-        } else {
-            return null;  // Return null if the item is not found
-        }
+      const db = await openDB('vineyard', 6);
+      const item = await db.get('items', ASIN);
+      if (item) {
+        return item.foundDate;
+      } else {
+        return null;  // Return null if the item is not found
+      }
     }
-
+  
     // Function to filter items based on newness
     async function filterNewItems() {
-        const newItemsOnly = document.getElementById('newItemsOnly').checked;
-        const allItems = document.querySelectorAll('.vvp-item-tile');
-
-        const promises = Array.from(allItems).map(async item => {
-            const itemRecID = item.dataset.recommendationId;
-            const [, ASIN] = itemRecID.split('#');
-            const foundDate = await getFoundDateForASIN(ASIN);
-
-            if (foundDate) {
-                const isNew = (new Date() - new Date(foundDate)) < thirtyMinutes;
-                if (newItemsOnly && !isNew) {
-                    item.style.display = 'none';
-                } else {
-                    item.style.display = 'block';
-                }
-            } else {
-                // If no found date, assume the item is old and hide it if filtering new items only
-                if (newItemsOnly) {
-                    item.style.display = 'none';
-                } else {
-                    item.style.display = 'block';
-                }
-            }
-        });
-
-        await Promise.all(promises);
+      const newItemsOnly = document.getElementById('newItemsOnly').checked;
+      const allItems = document.querySelectorAll('.vvp-item-tile');
+  
+      const promises = Array.from(allItems).map(async item => {
+        const itemRecID = item.dataset.recommendationId;
+        const [, ASIN] = itemRecID.split('#');
+        const foundDate = await getFoundDateForASIN(ASIN);
+  
+        if (foundDate) {
+          const isNew = (new Date() - new Date(foundDate)) < thirtyMinutes;
+          if (newItemsOnly && !isNew) {
+            item.style.display = 'none';
+          } else {
+            item.style.display = 'block';
+          }
+        } else {
+          // If no found date, assume the item is old and hide it if filtering new items only
+          if (newItemsOnly) {
+            item.style.display = 'none';
+          } else {
+            item.style.display = 'block';
+          }
+        }
+      });
+  
+      await Promise.all(promises);
     }
-
+  
     // Event listener for the new items only checkbox
     document.getElementById('newItemsOnly').addEventListener('change', function() {
-        localStorage.setItem('newItemsOnly', this.checked);
-        setTimeout(filterNewItems, 2000); // Add delay before filtering items
+      localStorage.setItem('newItemsOnly', this.checked);
+      setTimeout(filterNewItems, 2000); // Add delay before filtering items
     });
-
+  
     // Apply settings on load
     if (localStorage.getItem('newItemsOnly') === 'true') {
-        document.getElementById('newItemsOnly').checked = true;
-        setTimeout(filterNewItems, 2000); // Add delay before filtering items on load
+      document.getElementById('newItemsOnly').checked = true;
+      setTimeout(filterNewItems, 2000); // Add delay before filtering items on load
     }
-}
-
-// Initialize the extra extra settings when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-        initMoreExtraExtraSettings();
+  
+    // Add the ClickSpark element to the DOM
+    const clickSparkElement = document.createElement('click-spark');
+    document.body.appendChild(clickSparkElement);
+  
+    // Event listener for the click spark checkbox
+    document.getElementById('clickSparkToggle').addEventListener('change', function() {
+      const clickSparkElement = document.querySelector('click-spark');
+      if (clickSparkElement) {
+        clickSparkElement.toggle(this.checked);
+        localStorage.setItem('clickSparkEnabled', this.checked);
+      }
     });
-} else {
+  
+    // Apply click spark setting on load
+    if (localStorage.getItem('clickSparkEnabled') === 'true') {
+      document.getElementById('clickSparkToggle').checked = true;
+      const clickSparkElement = document.querySelector('click-spark');
+      if (clickSparkElement) {
+        clickSparkElement.toggle(true);
+      }
+    }
+  }
+  
+  // Initialize the extra extra settings when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      initMoreExtraExtraSettings();
+    });
+  } else {
     initMoreExtraExtraSettings();
-}
-
+  }
+  
 
 
 
@@ -2890,11 +2998,10 @@ function wrapSettingsInNewDiv() {
     // Find the existing divs with ids extra-settings and more-extra-settings
     const extraSettingsDiv = document.getElementById('extra-settings');
     const moreExtraSettingsDiv = document.getElementById('more-extra-settings');
-    const moreextraextrasettingsdiv = document.getElementById('more-extra-extra-settings')
+    const moreextraextrasettingsdiv = document.getElementById('more-extra-extra-settings');
 
-
-    // Check if both divs exist
-    if (extraSettingsDiv && moreExtraSettingsDiv) {
+    // Check if all divs exist
+    if (extraSettingsDiv && moreExtraSettingsDiv && moreextraextrasettingsdiv) {
         // Append the existing divs to the new div
         newDiv.appendChild(extraSettingsDiv);
         newDiv.appendChild(moreExtraSettingsDiv);
@@ -2904,7 +3011,7 @@ function wrapSettingsInNewDiv() {
         const settingsModalBody = document.querySelector('.custom-modal-body');
         settingsModalBody.insertAdjacentElement('beforeend', newDiv);
     } else {
-        console.error('One or both of the settings divs do not exist.');
+        console.error('One or more of the settings divs do not exist.');
     }
 }
 
@@ -2916,6 +3023,111 @@ if (document.readyState === 'loading') {
 } else {
     wrapSettingsInNewDiv(); // Wrap the settings in the new div
 }
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+// Function to add the "Even More Settings" section
+function addEvenMoreSettings() {
+    // Create the new section div
+    const evenMoreSettingsDiv = document.createElement('div');
+    evenMoreSettingsDiv.id = 'even-more-settings';
+    evenMoreSettingsDiv.className = 'settings-section';
+
+    // Create the title for the new section
+    const title = document.createElement('h3');
+    title.textContent = 'Even More Settings';
+    evenMoreSettingsDiv.appendChild(title);
+
+    // Create the setting item for custom pointer
+    const customPointerSetting = document.createElement('div');
+    customPointerSetting.className = 'setting-item';
+
+    const label = document.createElement('label');
+    label.textContent = 'Custom Pointer: ';
+    const select = document.createElement('select');
+    select.id = 'custom-pointer';
+    select.innerHTML = `
+        <option value="none">None</option>
+        <option value="AmericanFlagPointer">American Flag</option>
+        <option value="MinecraftSwordPointer">Minecraft Sword</option>
+    `;
+    label.appendChild(select);
+    customPointerSetting.appendChild(label);
+
+    // Append the setting item to the new section
+    evenMoreSettingsDiv.appendChild(customPointerSetting);
+
+    // Append the new section to the existing extra settings section
+    const extraSettingsDiv = document.getElementById('extra-settings');
+    if (extraSettingsDiv) {
+        extraSettingsDiv.insertAdjacentElement('afterend', evenMoreSettingsDiv);
+    } else {
+        console.error('The div with id "extra-settings" does not exist.');
+    }
+
+    // Event listener for the custom pointer select element
+    select.addEventListener('change', function() {
+        const selectedPointer = this.value;
+        localStorage.setItem('customPointer', selectedPointer);
+        applyCustomPointer(selectedPointer);
+    });
+
+    // Apply saved settings on load
+    const savedPointer = localStorage.getItem('customPointer');
+    if (savedPointer) {
+        select.value = savedPointer;
+        applyCustomPointer(savedPointer);
+    }
+}
+
+function removeCustomPointer() {
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = `
+        * {
+            cursor: unset !important;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Function to apply the custom pointer
+let customPointer = null;
+
+function applyCustomPointer(pointer) {
+    // Remove any existing custom pointer styles
+    removeCustomPointer();
+
+    switch (pointer) {
+        case 'MinecraftSwordPointer':
+            // Example code for applying Minecraft Sword pointer
+            customPointer = new MinecraftSwordPointer();
+            break;
+        case 'AmericanFlagPointer':
+            // Example code for applying American Flag pointer
+            customPointer = new AmericanFlagPointer();
+            break;
+        case 'none':
+        default:
+            customPointer = null;
+            break;
+    }
+}
+
+// Initialize the addition of new settings when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        addEvenMoreSettings(); // Add the new settings section
+    });
+} else {
+    addEvenMoreSettings(); // Add the new settings section
+}
+
+
 
 
 
