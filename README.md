@@ -4,11 +4,11 @@ Please note that these enhancements and customizations may be against Amazon's T
 
 # Vineyard Expanded and Enhanced 
 
-This extension started as a basic extension created by **KendallGoto** which i loved and then wanted to add sruff onto it so it has become so much more the rest of the extension waa developed by me [reddit:u/XxIIIBanIIIxX](https://www.reddit.com/user/XxIIIBanIIIxX).
+This extension started as a basic extension created by **KendallGoto** which i loved and then wanted to add stuff onto it, so it has become so much more the rest of the extension was developed by me [reddit:u/XxIIIBanIIIxX](https://www.reddit.com/user/XxIIIBanIIIxX).
 
 Free for personal use. Not meant to be sold.
 
-I spent at least a hundred hours developing this extension aince i started with no coding knowledge, I am happy with what it has become. Initially, I planned to keep it to myself, but I realized it could benefit others since other have developed and release extensions for free, so I'm releasing it for everyone to enjoy.
+I spent at least a couple hundred hours developing this extension aince i started with no coding knowledge, I am happy with what it has become. Initially, I planned to keep it to myself, but I realized it could benefit others since other have developed and release extensions for free, so I'm releasing it for everyone to enjoy.
 
 If you appreciate the work and feel like donating, you can do so via Cash App: **$KingGoBrr**.
 
