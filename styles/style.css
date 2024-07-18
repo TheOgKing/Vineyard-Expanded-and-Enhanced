@@ -41,3 +41,7 @@
 .vineyard-btns button.active {
 	background-color: green;
 }
+
+li#changelog {
+    color: floralwhite;
+}

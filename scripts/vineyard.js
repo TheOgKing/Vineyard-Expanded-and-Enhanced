@@ -70,6 +70,12 @@ function addInitialScanCount() {
     }
 }
 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 // Define a variable to keep track of the mute state
 let isMuted = localStorage.getItem('isMuted') === 'true';
 let scanSoundLink = localStorage.getItem('scanSoundLink') || 'https://www.myinstants.com/media/sounds/heyo.mp3';
@@ -114,6 +120,9 @@ function toggleKeywordHighlighting() {
         keywordToggleButton.classList.toggle('a-button-selected');
         keywordToggleButton.querySelector('.a-button-text').textContent = isKeywordHighlightingEnabled ? 'Keywords On' : 'Keywords Off';
     }
+
+    // Apply or remove keyword highlighting
+    highlightKeywordItems();
 }
 
 // Define a function to open a dialog box and update the scan sound link
@@ -133,14 +142,15 @@ function updateKeywords() {
         keywords = newKeywords.split(', ').map(keyword => keyword.trim());
         localStorage.setItem('keywords', keywords.join(', '));
     }
+    // Apply or remove keyword highlighting
+    highlightKeywordItems();
 }
 
 // Function to add buttons
 function addButtons() {
-    const buttonContainer = document.getElementById('vvp-items-button-container');
     const searchBox = document.getElementById('vvp-search-text-input');
-
-    if (!searchBox || !buttonContainer) return;
+    const prefsButton = document.getElementById('prefs-button');
+    if (!searchBox || !prefsButton) return;
 
     // Create HTML markup for the sound button
     const soundButtonHTML = `
@@ -160,11 +170,12 @@ function addButtons() {
         </span>
     `;
 
-    // Insert the sound button HTML before the search box
+     // Insert the sound button HTML before the search box
     searchBox.parentNode.insertBefore(document.createRange().createContextualFragment(soundButtonHTML), searchBox);
 
     // Insert the keyword toggle button HTML before the search box
     searchBox.parentNode.insertBefore(document.createRange().createContextualFragment(keywordToggleButtonHTML), searchBox);
+
 
     // Add event listener to the sound button
     const soundButton = document.getElementById('sound-button');
@@ -178,6 +189,48 @@ function addButtons() {
         keywordToggleButton.addEventListener('click', toggleKeywordHighlighting);
     }
 }
+
+// Function to highlight items that match keywords
+function highlightKeywordItems() {
+    const items = document.querySelectorAll('.vvp-item-tile'); // Adjust the selector based on your actual item tile class
+
+    items.forEach(item => {
+        const itemText = item.textContent.toLowerCase();
+        const shouldHighlight = isKeywordHighlightingEnabled && keywords.some(keyword => itemText.includes(keyword.toLowerCase()));
+        if (shouldHighlight) {
+            item.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+            keywordItemsCount++;
+        } else {
+            item.style.backgroundColor = '';
+        }
+    });
+
+    const highlightedItemsCountElement = document.getElementById('highlighted-items-count');
+    if (highlightedItemsCountElement) {
+        highlightedItemsCountElement.textContent = `Highlighted items: ${highlightedCount}`;
+    }
+}
+
+// Initialize the Keyword Highlighter on DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        addButtons();
+        highlightKeywordItems(); // Ensure highlighting is applied on page load
+    });
+} else {
+    addButtons();
+    highlightKeywordItems(); // Ensure highlighting is applied on page load
+}
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
 // Define the function to show scanned items in a modal
 let currentPage = 1;
@@ -325,6 +378,17 @@ document.addEventListener('keydown', function(event) {
         closeFullscreen();
     }
 });
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 
 (async function () {
     db = await openDB('vineyard', 6, {
@@ -483,16 +547,7 @@ document.addEventListener('keydown', function(event) {
             }
         }
 
-        // Highlight items matching keywords if the feature is enabled
-        if (isKeywordHighlightingEnabled) {
-            const keywords = localStorage.getItem('keywords') ? localStorage.getItem('keywords').split(', ') : [];
-            const itemName = item.productName.toLowerCase();
-            const keywordMatch = keywords.some(keyword => itemName.includes(keyword.toLowerCase()));
-            if (keywordMatch) {
-                element.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
-                keywordItemsCount++;
-            }
-        }
+
 
         const existingOverlay = element.querySelector(':scope > .vineyard-content');
         if (existingOverlay) {
@@ -509,7 +564,7 @@ document.addEventListener('keydown', function(event) {
                 priceHigh = ` - $${priceHigh}`;
             }
         } else {
-            priceLow = "Not Scanned";
+            priceLow = "Pending";
             priceHigh = "";
         }
         const isInterested = item.interested === true ? " active" : "";
@@ -550,6 +605,13 @@ document.addEventListener('keydown', function(event) {
     
 
     async function lookForItems() {
+
+        // Check if infinite scroll or StopVineyardScan is enabled
+        if (localStorage.getItem('infiniteScrollVine') === 'true' || localStorage.getItem('StopVineyardScan') === 'true') {
+            console.log('Infinite scroll or StopVineyardScan is enabled, skipping item lookup.');
+            return;
+        }
+        
         const itemElements = document.querySelectorAll('.vvp-item-tile');
         if (!itemElements.length) return;
 
@@ -596,7 +658,12 @@ document.addEventListener('keydown', function(event) {
                 newItemsCount++;
             }
     
-            await scanItem(itemEl, item);
+            // Check if scanning is stopped
+            if (localStorage.getItem('vineyardScanState') !== 'true') {
+                await scanItem(itemEl, item);
+            } else {
+                renderItem(itemEl, item); // Render the item without scanning
+            }
         }
     }
 
@@ -840,7 +907,7 @@ document.addEventListener('keydown', function(event) {
                                 priceHigh = ` - $${priceHigh}`;
                             }
                         } else {
-                            priceLow = "Not Scanned";
+                            priceLow = "Pending";
                             priceHigh = "";
                         }
     
@@ -993,6 +1060,16 @@ document.addEventListener('keydown', function(event) {
 
 
 
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
 (function() {
 // Function to inject custom CSS into the document
     function injectCustomCSS() {
@@ -1133,6 +1210,10 @@ document.addEventListener('keydown', function(event) {
 
     // Function to create settings modal content
     function createSettingsModal() {
+
+        const vineyardScanState = localStorage.getItem('vineyardScanState') === 'true';
+        const vineyardScanText = vineyardScanState ? ' Vineyard Scan Stopped ' : 'Vineyard Scan Active';
+    
         return `
             <div id="customSettingsModal" class="custom-modal-content">
                 <div class="custom-modal-header">
@@ -1161,11 +1242,16 @@ document.addEventListener('keydown', function(event) {
                     </button>
                     <button id="backup-restore-button" class="custom-button custom-button-normal custom-button-toggle" role="button">
                         <span class="custom-button-inner">
-                            <span class="custom-button-text">Backup/Restore</span>
-                        </span>
-                    </button>
-                </div>
-                <div class="custom-modal-footer">
+                        <span class="custom-button-text">Backup/Restore</span>
+                    </span>
+                </button>
+                <button id="stop-vineyard-scan-button" class="custom-button custom-button-normal custom-button-toggle" role="button">
+                    <span class="custom-button-inner">
+                        <span class="custom-button-text">${vineyardScanText}</span>
+                    </span>
+                </button>
+            </div>
+            <div class="custom-modal-footer">
                     <button id="custom-modal-close-btn" class="custom-button custom-button-primary">
                         <span class="custom-button-inner">
                             <span class="custom-button-text">Done</span>
@@ -1325,7 +1411,10 @@ document.addEventListener('keydown', function(event) {
         document.getElementById('backup-restore-button').addEventListener('click', function() {
             showBackupRestoreDialog();
         });
-
+        document.getElementById('stop-vineyard-scan-button').addEventListener('click', function() {
+            toggleVineyardScan();
+        });
+    
         // Open the modal when the settings button is clicked
         feedbackButton.querySelector('a').addEventListener('click', function() {
             document.getElementById('customSettingsModal').style.display = 'block';
@@ -1418,6 +1507,21 @@ document.addEventListener('keydown', function(event) {
         }
     }
 
+
+// Function to update the Vineyard Scan button text based on its state
+function updateVineyardScanButton() {
+    const vineyardScanState = localStorage.getItem('vineyardScanState') === 'true';
+    const button = document.getElementById('stop-vineyard-scan-button');
+    button.querySelector('.custom-button-text').textContent = vineyardScanState ? ' Vineyard Scan Stopped ' : 'Vineyard Scan Active';
+}
+
+// Function to toggle the Vineyard Scan state
+function toggleVineyardScan() {
+    let vineyardScanState = localStorage.getItem('vineyardScanState') === 'true';
+    vineyardScanState = !vineyardScanState;
+    localStorage.setItem('vineyardScanState', vineyardScanState);
+    updateVineyardScanButton();
+}
 
 // Function to retrieve and display timestamps
 function retrieveTimestamps() {
@@ -1581,6 +1685,10 @@ if (document.readyState === 'loading') {
     }
 
 
+
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -1599,14 +1707,73 @@ function initExtraSettings() {
                     <option value="none">None</option>
                     <option value="pagination">Pagination</option>
                     <option value="topBar">Top Bar</option>
-                </select> 
+                </select>
             </label>
+            <div class="settings-section" id="even-more-settings">
+                <h3>Even More Settings</h3>
+                <div class="setting-item">
+                    <label>Custom Pointer:
+                        <select id="custom-pointer">
+                            <option value="none">None</option>
+                            <option value="AmericanFlagPointer">American Flag</option>
+                            <option value="MinecraftSwordPointer">Minecraft Sword</option>
+                            <option value="EnchantedMinecraftSwordPointer">Enchanted Sword</option>
+                            <option value="AnyaForgerPointer">Anya (x family)</option>
+                            <option value="PizzaCatPointer">Pizza Cat</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
         </div>
     `;
 
     // Insert the extra settings into the settings modal
     const settingsModalBody = document.querySelector('#customSettingsModal .custom-modal-body');
     settingsModalBody.insertAdjacentHTML('beforeend', extraSettingsHTML);
+
+    // Function to remove custom pointer styles
+    function removeCustomPointer() {
+        const style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = `
+            * {
+                cursor: unset !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Function to apply the custom pointer
+    let customPointer = null;
+
+    function applyCustomPointer(pointer) {
+        // Remove any existing custom pointer styles
+        removeCustomPointer();
+
+        switch (pointer) {
+            case 'MinecraftSwordPointer':
+                // Example code for applying Minecraft Sword pointer
+                customPointer = new MinecraftSwordPointer();
+                break;
+            case 'AmericanFlagPointer':
+                // Example code for applying American Flag pointer
+                customPointer = new AmericanFlagPointer();
+                break;
+            case 'PizzaCatPointer':
+                customPointer = new PizzaCatPointer();
+                break
+            case 'EnchantedMinecraftSwordPointer':
+                customPointer = new EnchantedMinecraftSwordPointer();
+                break
+            case 'AnyaForgerPointer':
+                customPointer = new AnyaForgerPointer();
+                break
+            case 'none':
+            default:
+                customPointer = null;
+                break;
+        }
+    }
 
     // Function to remove top navigation bar
     function removeTopNavBar() {
@@ -1638,7 +1805,12 @@ function initExtraSettings() {
     function replacebrwithnav() {
         const searchInput = document.getElementById('vvp-search-text-input');
         if (searchInput && searchInput.value.trim() !== '') {
-            const brElement = document.querySelector('#vvp-items-button-container > br');
+            let brElement = document.querySelector('#vvp-items-button-container > br');
+            const container = document.getElementById('vvp-items-button-container');
+            if (!brElement && container) {
+                container.innerHTML += '<br>';
+                brElement = document.querySelector('#vvp-items-button-container > br');
+            }
             if (brElement) {
                 const newContent = `
                     <span id="vvp-items-button--recommended" class="a-button a-button-normal a-button-toggle">
@@ -1884,6 +2056,13 @@ function initExtraSettings() {
         }
     });
 
+    // Event listener for the custom pointer select element
+    document.getElementById('custom-pointer').addEventListener('change', function() {
+        const selectedPointer = this.value;
+        localStorage.setItem('customPointer', selectedPointer);
+        applyCustomPointer(selectedPointer);
+    });
+
     // Apply settings on load
     if (localStorage.getItem('removeTopNavBar') === 'true') {
         document.getElementById('removeTopNavBar').checked = true;
@@ -1901,6 +2080,11 @@ function initExtraSettings() {
         } else if (savedOption === 'topBar') {
             addSavedSearchButtonsTopBar();
         }
+    }
+    const savedPointer = localStorage.getItem('customPointer');
+    if (savedPointer) {
+        document.getElementById('custom-pointer').value = savedPointer;
+        applyCustomPointer(savedPointer);
     }
 }
 
@@ -1933,6 +2117,7 @@ if (document.readyState === 'loading') {
     applySavedBackground();
     initExtraSettings(); // Initialize the extra settings
 }
+
 
 
 })();
@@ -2239,7 +2424,7 @@ function handleETVButton(tileContentEl, addEtvButton) {
     const inputEl = tileContentEl.querySelector("input.a-button-input");
     
     if (!inputEl) {
-        console.warn('Input element not found:', tileContentEl);
+        //console.warn('Input element not found:', tileContentEl);
         return;
     }
 
@@ -2352,6 +2537,13 @@ if (document.readyState === 'loading') {
 }
 
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 // Pagination when left/right arrow keys are pressed =======================
 document.body.addEventListener("keyup", (ev) => {
     if (document.activeElement.tagName.toLowerCase() !== "input") {
@@ -2368,6 +2560,15 @@ document.body.addEventListener("keyup", (ev) => {
     }
   });
   
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 
 // This script overrides the global error handler and specific logging functions with safe defaults
 
@@ -3030,102 +3231,7 @@ if (document.readyState === 'loading') {
 
 
 
-// Function to add the "Even More Settings" section
-function addEvenMoreSettings() {
-    // Create the new section div
-    const evenMoreSettingsDiv = document.createElement('div');
-    evenMoreSettingsDiv.id = 'even-more-settings';
-    evenMoreSettingsDiv.className = 'settings-section';
 
-    // Create the title for the new section
-    const title = document.createElement('h3');
-    title.textContent = 'Even More Settings';
-    evenMoreSettingsDiv.appendChild(title);
-
-    // Create the setting item for custom pointer
-    const customPointerSetting = document.createElement('div');
-    customPointerSetting.className = 'setting-item';
-
-    const label = document.createElement('label');
-    label.textContent = 'Custom Pointer: ';
-    const select = document.createElement('select');
-    select.id = 'custom-pointer';
-    select.innerHTML = `
-        <option value="none">None</option>
-        <option value="AmericanFlagPointer">American Flag</option>
-        <option value="MinecraftSwordPointer">Minecraft Sword</option>
-    `;
-    label.appendChild(select);
-    customPointerSetting.appendChild(label);
-
-    // Append the setting item to the new section
-    evenMoreSettingsDiv.appendChild(customPointerSetting);
-
-    // Append the new section to the existing extra settings section
-    const extraSettingsDiv = document.getElementById('extra-settings');
-    if (extraSettingsDiv) {
-        extraSettingsDiv.insertAdjacentElement('afterend', evenMoreSettingsDiv);
-    } else {
-        console.error('The div with id "extra-settings" does not exist.');
-    }
-
-    // Event listener for the custom pointer select element
-    select.addEventListener('change', function() {
-        const selectedPointer = this.value;
-        localStorage.setItem('customPointer', selectedPointer);
-        applyCustomPointer(selectedPointer);
-    });
-
-    // Apply saved settings on load
-    const savedPointer = localStorage.getItem('customPointer');
-    if (savedPointer) {
-        select.value = savedPointer;
-        applyCustomPointer(savedPointer);
-    }
-}
-
-function removeCustomPointer() {
-    const style = document.createElement('style');
-    style.type = 'text/css';
-    style.innerHTML = `
-        * {
-            cursor: unset !important;
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-// Function to apply the custom pointer
-let customPointer = null;
-
-function applyCustomPointer(pointer) {
-    // Remove any existing custom pointer styles
-    removeCustomPointer();
-
-    switch (pointer) {
-        case 'MinecraftSwordPointer':
-            // Example code for applying Minecraft Sword pointer
-            customPointer = new MinecraftSwordPointer();
-            break;
-        case 'AmericanFlagPointer':
-            // Example code for applying American Flag pointer
-            customPointer = new AmericanFlagPointer();
-            break;
-        case 'none':
-        default:
-            customPointer = null;
-            break;
-    }
-}
-
-// Initialize the addition of new settings when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-        addEvenMoreSettings(); // Add the new settings section
-    });
-} else {
-    addEvenMoreSettings(); // Add the new settings section
-}
 
 
 
@@ -3456,12 +3562,132 @@ document.head.appendChild(style);
 
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+// Add Keyword Hider Button
+function addKeywordHiderButton() {
+    const searchBox = document.getElementById('vvp-search-text-input');
+    const prefsButton = document.getElementById('prefs-button');
+    if (searchBox && prefsButton) {
+        const keywordHiderButtonHTML = `
+            <span id="keyword-hider-button" class="a-button a-button-normal a-button-toggle" role="button">
+                <span class="a-button-inner">
+                    <a class="a-button-text">Hide KW</a>
+                </span>
+            </span>
+        `;
+        prefsButton.parentNode.insertBefore(document.createRange().createContextualFragment(keywordHiderButtonHTML), prefsButton);
+
+        document.getElementById('keyword-hider-button').addEventListener('click', toggleKeywordHiderMenu);
+    }
+}
+
+// Toggle Keyword Hider Menu
+function toggleKeywordHiderMenu() {
+    const menuExists = document.getElementById('keyword-hider-menu');
+    if (menuExists) {
+        menuExists.style.display = menuExists.style.display === 'block' ? 'none' : 'block';
+    } else {
+        createKeywordHiderMenu();
+    }
+}
+
+// Create Keyword Hider Menu
+function createKeywordHiderMenu() {
+    const menuHTML = `
+        <div id="keyword-hider-menu" style="position: absolute; background-color: #1C1F26; border: 1px solid #ccc; padding: 10px; display: block; z-index: 1000; border-radius: 8px;">
+            <label style="color: white;"><input type="checkbox" id="hide-keywords-toggle"> Hide keywords</label>
+            <button id="edit-keywords-button" class="custom-button custom-button-primary" style="margin-left: 10px;">Add/Remove Keywords</button>
+            <span id="keyword-toggle-status" style="color: white; margin-left: 10px;">Feature is off</span>
+            <div id="hidden-items-count" style="color: white; margin-top: 10px;">Hidden items: 0</div>
+        </div>
+    `;
+    const searchBox = document.getElementById('vvp-search-text-input');
+    searchBox.parentNode.insertAdjacentHTML('beforeend', menuHTML);
+
+    document.getElementById('hide-keywords-toggle').addEventListener('change', toggleKeywordVisibility);
+    document.getElementById('edit-keywords-button').addEventListener('click', editKeywords);
+    updateKeywordToggleStatus();
+}
+
+// Toggle Keyword Visibility
+function toggleKeywordVisibility() {
+    const isChecked = document.getElementById('hide-keywords-toggle').checked;
+    localStorage.setItem('hideKeywordsVine', isChecked);
+    updateKeywordToggleStatus();
+    applyKeywordHider();
+}
+
+function updateKeywordToggleStatus() {
+    const status = localStorage.getItem('hideKeywordsVine') === 'true' ? 'Feature is on' : 'Feature is off';
+    document.getElementById('keyword-toggle-status').textContent = status;
+    document.getElementById('hide-keywords-toggle').checked = localStorage.getItem('hideKeywordsVine') === 'true';
+}
+
+// Edit Keywords
+function editKeywords() {
+    const currentKeywords = localStorage.getItem('keywordsVine') || '';
+    const newKeywords = prompt('Enter the keywords to monitor (separated by commas):', currentKeywords);
+    if (newKeywords !== null) {
+        localStorage.setItem('keywordsVine', newKeywords);
+        applyKeywordHider();
+    }
+}
+
+// Apply Keyword Hider Functionality
+function applyKeywordHider() {
+    const isOn = localStorage.getItem('hideKeywordsVine') === 'true';
+    const keywords = (localStorage.getItem('keywordsVine') || '').split(',').map(kw => kw.trim().toLowerCase());
+
+    const items = document.querySelectorAll('.vvp-item-tile');
+    let hiddenCount = 0;
+
+    items.forEach(item => {
+        const itemText = item.textContent.toLowerCase();
+        const shouldHide = isOn && keywords.some(kw => itemText.includes(kw));
+        if (shouldHide) {
+            item.style.display = 'none';
+            hiddenCount++;
+        } else {
+            item.style.display = '';
+        }
+    });
+
+    const hiddenItemsCountElement = document.getElementById('hidden-items-count');
+    if (hiddenItemsCountElement) {
+        hiddenItemsCountElement.textContent = `Hidden items: ${hiddenCount}`;
+    }
+}
+
+// Initialize the Keyword Hider on DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        addKeywordHiderButton();
+        applyKeywordHider();
+    });
+} else {
+    addKeywordHiderButton();
+    applyKeywordHider();
+}
+
+
 
 
 
 
 /////////////// random section for replacing random shit lol lets call it KingsChanges ////////////////////
+
+
+
 
 
 //replaces the inner link of vine items tab to redirect to adittional itrems isntead of available for all
@@ -3480,5 +3706,429 @@ if (vineItemsTab) {
     // Replace the old list item with the new one
     vineItemsTab.parentNode.replaceChild(newVineItemsTab, vineItemsTab);
 }
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+// Initialize the infinite scroll flag and page counter
+let isLoadingNextPage = false;
+let infiniteScrollPageCounter = 1; // Assuming the first page is loaded initially
+
+// Function to initialize manual and scroll-based infinite loader
+function initManualScrollLoader() {
+    const loadNextButton = document.createElement('button');
+    loadNextButton.id = 'load-next-button';
+    loadNextButton.textContent = 'Load Next Page';
+    loadNextButton.style.position = 'fixed';
+    loadNextButton.style.right = '20px';
+    loadNextButton.style.bottom = '20px';
+    loadNextButton.style.zIndex = '1000';
+    loadNextButton.style.backgroundColor = '#ff9900';
+    loadNextButton.style.color = 'white';
+    loadNextButton.style.border = 'none';
+    loadNextButton.style.borderRadius = '5px';
+    loadNextButton.style.padding = '10px';
+    loadNextButton.style.cursor = 'pointer';
+    document.body.appendChild(loadNextButton);
+
+    loadNextButton.addEventListener('click', () => {
+        if (!isLoadingNextPage) {
+            isLoadingNextPage = true;
+            loadNextPage();
+        }
+    });
+
+    updatePageCounter(); // Initial update for the page counter
+
+    // Scroll event to trigger page load
+    window.addEventListener('scroll', () => {
+        const threshold = 200; // Pixels from the bottom to trigger the load
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - threshold && !isLoadingNextPage) {
+            isLoadingNextPage = true;
+            loadNextPage();
+        }
+    });
+}
+
+
+// Function to load the next page
+function loadNextPage() {
+    const nextPageLink = document.querySelector('.a-pagination .a-last a');
+    if (nextPageLink) {
+        fetch(nextPageLink.href)
+            .then(response => response.text())
+            .then(data => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data, 'text/html');
+                const newItems = doc.querySelectorAll('.vvp-item-tile');
+                const grid = document.getElementById('vvp-items-grid');
+                newItems.forEach(item => grid.appendChild(item));
+
+                // Update pagination link
+                const newNextPageLink = doc.querySelector('.a-pagination .a-last a');
+                if (newNextPageLink) {
+                    nextPageLink.href = newNextPageLink.href;
+                } else {
+                    nextPageLink.remove(); // No more pages to load
+                    document.getElementById('load-next-button').style.display = 'none'; // Hide the button if no more pages
+                }
+
+                // Reapply keyword hider
+                applyKeywordHider();
+                highlightKeywordItems();
+
+                // Update current page counter
+                infiniteScrollPageCounter++;
+                updatePageCounter();
+
+                isLoadingNextPage = false; // Reset the loading flag
+
+                // Call your functions with a 1-second delay
+                setTimeout(() => {
+                    if (localStorage.getItem('addEtvButton') === 'true') {
+                        document.querySelectorAll('.vvp-item-tile-content').forEach(tileContentEl => {
+                            handleETVButton(tileContentEl, true);
+                        });
+                    }
+
+                    if (localStorage.getItem('fixSpinnerButton') === 'true') {
+                        document.querySelectorAll('.vvp-item-tile-content').forEach(tileContentEl => {
+                            handleFixSpinnerButton(tileContentEl, true);
+                        });
+                    }
+                }, 1000); // 1-second delay
+
+            })
+            .catch(error => {
+                console.error('Error loading next page:', error);
+                isLoadingNextPage = false; // Reset the loading flag even if there's an error
+            });
+    }
+}
+
+// Function to update the page counter
+function updatePageCounter() {
+    const paginationContainer = document.querySelector('.a-pagination');
+    if (paginationContainer) {
+        let pageCounter = document.getElementById('page-counter');
+        if (!pageCounter) {
+            pageCounter = document.createElement('li');
+            pageCounter.id = 'page-counter';
+            pageCounter.className = 'a-normal';
+            pageCounter.style.color = 'white';
+            pageCounter.style.marginTop = '10px';
+            paginationContainer.appendChild(pageCounter);
+        }
+        pageCounter.textContent = `Loaded up to page ${infiniteScrollPageCounter}`;
+    }
+}
+
+// Add Infinite Scroll Button
+function addInfiniteScrollButton() {
+    const searchBox = document.getElementById('vvp-search-text-input');
+    const prefsButton = document.getElementById('prefs-button');
+    if (searchBox && prefsButton) {
+        const infiniteScrollButtonHTML = `
+            <span id="infinite-scroll-button" class="a-button a-button-normal a-button-toggle" role="button">
+                <span class="a-button-inner">
+                    <a class="a-button-text">Infinite Scroll</a>
+                </span>
+            </span>
+        `;
+        prefsButton.parentNode.insertBefore(document.createRange().createContextualFragment(infiniteScrollButtonHTML), prefsButton);
+
+        document.getElementById('infinite-scroll-button').addEventListener('click', toggleInfiniteScrollMenu);
+    }
+}
+
+// Toggle Infinite Scroll Menu
+function toggleInfiniteScrollMenu() {
+    const menuExists = document.getElementById('infinite-scroll-menu');
+    if (menuExists) {
+        menuExists.style.display = menuExists.style.display === 'block' ? 'none' : 'block';
+    } else {
+        createInfiniteScrollMenu();
+    }
+}
+
+// Create Infinite Scroll Menu
+function createInfiniteScrollMenu() {
+    const menuHTML = `
+        <div id="infinite-scroll-menu" style="position: absolute; background-color: #1C1F26; border: 1px solid #ccc; padding: 10px; display: block; z-index: 1000; border-radius: 8px;">
+            <label style="color: white;"><input type="checkbox" id="infinite-scroll-toggle"> Infinite Scroll</label>
+            <span id="infinite-scroll-status" style="color: white; margin-left: 10px;">Feature is off</span>
+        </div>
+    `;
+    const searchBox = document.getElementById('vvp-search-text-input');
+    searchBox.parentNode.insertAdjacentHTML('beforeend', menuHTML);
+
+    document.getElementById('infinite-scroll-toggle').addEventListener('change', toggleInfiniteScroll);
+    updateInfiniteScrollStatus();
+}
+
+// Toggle Infinite Scroll
+function toggleInfiniteScroll() {
+    const isChecked = document.getElementById('infinite-scroll-toggle').checked;
+    localStorage.setItem('infiniteScrollVine', isChecked);
+    updateInfiniteScrollStatus();
+    if (isChecked) {
+        initManualScrollLoader();
+    } else {
+        const loadNextButton = document.getElementById('load-next-button');
+        if (loadNextButton) {
+            loadNextButton.remove();
+        }
+    }
+}
+
+function updateInfiniteScrollStatus() {
+    const status = localStorage.getItem('infiniteScrollVine') === 'true' ? 'Feature is on' : 'Feature is off';
+    document.getElementById('infinite-scroll-status').textContent = status;
+    document.getElementById('infinite-scroll-toggle').checked = localStorage.getItem('infiniteScrollVine') === 'true';
+}
+
+
+// Throttle function to limit the frequency of function execution
+function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+        const args = arguments;
+        const context = this;
+        if (!inThrottle) {
+            func.apply(context, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// Initialize the Infinite Scroll or Manual Loader on DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        addInfiniteScrollButton();
+        if (localStorage.getItem('infiniteScrollVine') === 'true') {
+            initManualScrollLoader();  // Use the new init function
+        }
+    });
+} else {
+    addInfiniteScrollButton();
+    if (localStorage.getItem('infiniteScrollVine') === 'true') {
+        initManualScrollLoader();  // Use the new init function
+    }
+}
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+// Function to add the "Send to Discord" button to all product tiles
+function addSendToDiscordButtonToAllTiles() {
+    const isEnabled = localStorage.getItem('discordWebhookEnabled') === 'true';
+    const productTiles = document.querySelectorAll('.vvp-item-tile');
+
+    productTiles.forEach(tile => {
+        const buttonContainer = tile.querySelector('.vvp-item-tile-content');
+        if (!buttonContainer) {
+            return;
+        }
+
+        const existingButton = tile.querySelector('.send-to-discord-btn');
+        if (isEnabled && !existingButton) {
+            const sendToDiscordButton = document.createElement('button');
+            sendToDiscordButton.textContent = 'Send to Discord';
+            sendToDiscordButton.className = 'a-button a-button-primary send-to-discord-btn';
+            sendToDiscordButton.style.cssText = 'background: #16191e !important; margin: -15px 0px 0px 0px !important; height: 40px !important;';
+            sendToDiscordButton.addEventListener('click', () => handleSendToDiscordClick(tile));
+            buttonContainer.appendChild(sendToDiscordButton);
+        } else if (!isEnabled && existingButton) {
+            existingButton.remove();
+        }
+    });
+}
+
+// Function to handle the button click
+function handleSendToDiscordClick(tile) {
+    const discordWebhookConfig = localStorage.getItem('discordWebhookURL');
+    const isEnabled = localStorage.getItem('discordWebhookEnabled') === 'true';
+    if (!isEnabled || !discordWebhookConfig) {
+        alert('Discord webhook is not configured or not enabled.');
+        return;
+    }
+
+    const webhooks = discordWebhookConfig.split(',');
+    const productTitle = tile.querySelector('.a-truncate-full').textContent;
+    const priceElement = tile.querySelector('.vineyard-price');
+    const price = priceElement ? priceElement.textContent : 'Not Available';
+    const thumbnailURL = tile.querySelector('img').src;
+    const currentDate = new Date();
+    const dateTimeString = currentDate.toLocaleString();
+
+    const titleWords = productTitle.split(' ');
+    const searchQuery = titleWords.slice(0, 2).join(' ');
+
+    const payload = {
+        username: 'Vineyard Bot',
+        embeds: [
+            {
+                title: productTitle,
+                url: tile.querySelector('.a-link-normal').href,
+                description: `Price: ${price}`,
+                thumbnail: {
+                    url: thumbnailURL
+                },
+                fields: [
+                    {
+                        name: 'Search on Amazon',
+                        value: `[Search Amazon Vine Items](https://www.amazon.com/vine/vine-items?search=${encodeURIComponent(searchQuery)})`
+                    },
+                    {
+                        name: 'Disclaimer',
+                        value: 'Item might be available but not appear under this search link, so try manually if it\'s not.'
+                    }
+                ],
+                footer: {
+                    text: `Sent on ${dateTimeString}`
+                }
+            }
+        ]
+    };
+
+    webhooks.forEach(webhookURL => {
+        fetch(webhookURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }).then(response => {
+            if (response.ok) {
+                alert('Product details sent to Discord successfully!');
+            } else {
+                alert('Failed to send product details to Discord.');
+            }
+        }).catch(error => {
+            console.error('Error sending to Discord:', error);
+            alert('Error sending product details to Discord.');
+        });
+    });
+}
+
+
+// Function to add Discord Webhook Button
+function addDiscordWebhookButton() {
+    const searchBox = document.getElementById('vvp-search-text-input');
+    const prefsButton = document.getElementById('prefs-button');
+    if (searchBox && prefsButton) {
+        const discordWebhookButtonHTML = `
+            <span id="discord-webhook-button" class="a-button a-button-normal a-button-toggle" role="button">
+                <span class="a-button-inner">
+                    <a class="a-button-text">Discord</a>
+                </span>
+            </span>
+        `;
+        prefsButton.parentNode.insertBefore(document.createRange().createContextualFragment(discordWebhookButtonHTML), prefsButton);
+        document.getElementById('discord-webhook-button').addEventListener('click', toggleDiscordWebhookMenu);
+    }
+}
+
+// Toggle Discord Webhook Menu
+function toggleDiscordWebhookMenu() {
+    const menuExists = document.getElementById('discord-webhook-menu');
+    if (menuExists) {
+        menuExists.style.display = menuExists.style.display === 'block' ? 'none' : 'block';
+    } else {
+        createDiscordWebhookMenu();
+    }
+}
+
+// Create Discord Webhook Menu
+function createDiscordWebhookMenu() {
+    const menuHTML = `
+        <div id="discord-webhook-menu" style="position: absolute; background-color: #1C1F26; border: 1px solid #ccc; padding: 10px; display: block; z-index: 1000; border-radius: 8px;">
+            <label style="color: white;"><input type="checkbox" id="discord-webhook-toggle"> Enable Discord Webhook</label>
+            <button id="edit-discord-webhook-button" class="custom-button custom-button-primary" style="margin-left: 10px;">Add/Change Webhook</button>
+            <span id="discord-toggle-status" style="color: white; margin-left: 10px;">Feature is off</span>
+        </div>
+    `;
+    const searchBox = document.getElementById('vvp-search-text-input');
+    searchBox.parentNode.insertAdjacentHTML('beforeend', menuHTML);
+
+    document.getElementById('discord-webhook-toggle').addEventListener('change', toggleDiscordWebhook);
+    document.getElementById('edit-discord-webhook-button').addEventListener('click', editDiscordWebhook);
+    updateDiscordToggleStatus();
+}
+
+// Toggle Discord Webhook
+function toggleDiscordWebhook() {
+    const isChecked = document.getElementById('discord-webhook-toggle').checked;
+    localStorage.setItem('discordWebhookEnabled', isChecked ? 'true' : 'false');
+    updateDiscordToggleStatus();
+    addSendToDiscordButtonToAllTiles(); // Add or remove buttons dynamically
+}
+
+// Edit Discord Webhook
+function editDiscordWebhook() {
+    const currentWebhook = localStorage.getItem('discordWebhookURL') || '';
+    const newWebhook = prompt('Enter the new Discord webhook URL:', currentWebhook);
+    if (newWebhook !== null) {
+        localStorage.setItem('discordWebhookURL', newWebhook);
+        updateDiscordToggleStatus();
+    }
+}
+
+// Update Discord Toggle Status function
+function updateDiscordToggleStatus() {
+    const isEnabled = localStorage.getItem('discordWebhookEnabled') === 'true';
+    const status = isEnabled ? 'Feature is on' : 'Feature is off';
+    const statusElement = document.getElementById('discord-toggle-status');
+    const toggleElement = document.getElementById('discord-webhook-toggle');
+
+    if (statusElement) {
+        statusElement.textContent = status;
+    } else {
+    }
+
+    if (toggleElement) {
+        toggleElement.checked = isEnabled;
+    } else {
+    }
+}
+// Initial call on page load to ensure correct display and status
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        addDiscordWebhookButton();
+        addSendToDiscordButtonToAllTiles();
+        updateDiscordToggleStatus();
+    });
+    
+   
+} else {
+    addDiscordWebhookButton();
+    addSendToDiscordButtonToAllTiles();
+    updateDiscordToggleStatus(); // Ensure this is called to reflect current state
+}
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 

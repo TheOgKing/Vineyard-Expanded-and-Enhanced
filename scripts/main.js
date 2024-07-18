@@ -28,7 +28,10 @@ cursors.forEach(cursor => inject(chrome.runtime.getURL(cursor), 'body'));
 
 const pointers = [
     'pointers/AmericanFlagPointer.js',
-    'pointers/MinecraftSwordPointer.js'
+    'pointers/MinecraftSwordPointer.js',
+    'pointers/PizzaCatPointer.js',
+    'pointers/EnchantedMinecraftSwordPointer.js',
+    'pointers/AnyaForgerPointer.js'
 ];
 
 pointers.forEach(pointer => inject(chrome.runtime.getURL(pointer), 'body'));
@@ -36,3 +39,4 @@ pointers.forEach(pointer => inject(chrome.runtime.getURL(pointer), 'body'));
 // Inject other necessary scripts
 inject(chrome.runtime.getURL('scripts/vineyard.js'), 'body');
 inject(chrome.runtime.getURL('scripts/jszip.min.js'), 'body');
+inject(chrome.runtime.getURL('scripts/updatenotification.js'), 'body')
