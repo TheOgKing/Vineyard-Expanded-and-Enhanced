@@ -12,6 +12,7 @@ I spent at least a couple hundred hours developing this extension aince i starte
 
 If you appreciate the work and feel like donating, you can do so via Cash App: **$KingGoBrr**.
 
+
 Amazon Vine Program Page Enhancements
 
 **Custom Styling**
@@ -65,5 +66,10 @@ Background and Scanned Items
 • Multiple Cursor Effects
 
 • Enable New Items Only Option: Only new items for the current page are displayed.
+
+# I have uploaded this extension onto the chrome store so it can be installed from the link below 
+
+https://chromewebstore.google.com/detail/vineyard-expanded-and-enh/ghomdipokmmidcfmlldghgalmjklecpe
+
 
 # if there are any problems or requests  feel free to open an issue ticket or dm me on reddit and ill get to it as soon as a i can.
