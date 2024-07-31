@@ -1,13 +1,12 @@
 window.onload = () => {
     // Set the current version manually for testing purposes
-    const currentVersion = '1.9.3.2';
+    const currentVersion = '1.9.4';
 
     // Change log for the latest version
     const changeLog = `
         <ul>
-            <li id="changelog">Fixed minor bugs</li>
-            <li id="changelog">Inifinite scroll feature now loads the next page automatically when reaching the bottom of the page</li>
-            <li id="changelog">Added 3 new cursor pointers</li>
+            <li id="changelog">added new feature "Ez Review" located in the review tab</li>
+            <li id="changelog">added missing redesign of orders tab </li>
             <li id="changelog">Any problems, bugs or feature requests? send a dm to u/XxIIIBanIIIxX on reddit</li>
         </ul>
     `;

@@ -2,7 +2,7 @@
 	"manifest_version": 3,
 	"name": "Vineyard Expanded and enhanced",
 	"description": "Helper Extension for Amazon Vine",
-	"version": "1.9.3.2",
+	"version": "1.9.4",
 	"action": {
 		"default_icon": "vineyard.png"
 	},
@@ -12,6 +12,7 @@
 				"scripts/jszip.min.js",
 				"scripts/vineyard.js",
 				"scripts/updatenotification.js",
+				"scripts/idbindex.js",
                 "cursors/*.js",
 				"pointers/*.js"
 			],

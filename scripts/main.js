@@ -40,3 +40,4 @@ pointers.forEach(pointer => inject(chrome.runtime.getURL(pointer), 'body'));
 inject(chrome.runtime.getURL('scripts/vineyard.js'), 'body');
 inject(chrome.runtime.getURL('scripts/jszip.min.js'), 'body');
 inject(chrome.runtime.getURL('scripts/updatenotification.js'), 'body')
+inject(chrome.runtime.getURL('scripts/idbindex.js'), 'body')

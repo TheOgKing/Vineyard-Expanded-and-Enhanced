@@ -1,4 +1,4 @@
-import { openDB, deleteDB, wrap, unwrap } from 'https://cdn.jsdelivr.net/npm/idb@7/+esm';
+import { openDB } from "./idbindex.js";
 
 const SCAN_DELAY = 1000;
 const INNER_SCAN_DELAY = 0;
@@ -3084,7 +3084,7 @@ class ClickSpark extends HTMLElement {
         <div class="extension-info">
           <p>This extension was developed by <a href="https://www.reddit.com/user/XxIIIBanIIIxX" target="_blank">reddit:u/XxIIIBanIIIxX</a>.</p>
           <p>Free for personal use. Not meant to be sold.</p>
-          <p>I spent at least a hundred hours developing this extension. Despite starting with no coding knowledge, I am proud of what it has become. Initially, I planned to keep it to myself, but I realized it could benefit others, so I'm releasing it for everyone to enjoy.</p>
+          <p>started not knowing any coding so spent hundreds of hours developing this extension. Please Enjoy :) </p>
           <div class="support-section">
             <h4>Support</h4>
             <p>If you appreciate the work and feel like donating, you can do so via:</p>
@@ -3239,177 +3239,162 @@ if (document.readyState === 'loading') {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Replace the existing Vine Help menu item with the Vine Automated menu
+// Replace the existing Vine Help menu item with the Vine Enlarged menu
 const vineHelpLink = document.getElementById('vvp-vine-help-link');
 if (vineHelpLink) {
-    vineHelpLink.innerHTML = `<a href="javascript:void(0)" id="vineAutomatedLink">Vine Automated</a>`;
+    vineHelpLink.innerHTML = `<a href="javascript:void(0)" id="vineEnlargedLink">Vine Enlarged</a>`;
 }
 
-// Create the Vine Automated modal content
-const vineAutomatedModal = `
-    <div id="vineAutomatedModal" class="custom-modal-content">
-        <div class="custom-modal-header">
-            <h2>Vine Automated <span class="question-mark" title="Automatically scans items and displays them in the existing grid. When done, continues to the next page.">?</span></h2>
+// Create the Vine Enlarged modal content
+const vineEnlargedModal = `
+    <div id="vineEnlargedModal" class="vine-enlarged-modal-content">
+        <div class="vine-enlarged-header">
+            <h2>Vine Enlarged</h2>
         </div>
-        <div class="custom-modal-body">
+        <li>Might not look correctly on some screen sizes if so try zooming in or out. </li>
+        <div class="vine-enlarged-body">
             <label class="switch">
-                <input type="checkbox" id="vineAutomatedToggle">
+                <input type="checkbox" id="vineEnlargedToggle">
                 <span class="slider"></span>
             </label>
-            <span id="vineAutomatedStatus">Feature is off</span>
+            <span id="vineEnlargedStatus">Feature is off</span>
         </div>
-        <div class="custom-modal-footer">
-            <button id="vineAutomatedDoneBtn" class="custom-button custom-button-primary">Done</button>
+        <div class="vine-enlarged-footer">
+            <button id="vineEnlargedDoneBtn" class="custom-button custom-button-primary">Done</button>
         </div>
     </div>
+    <div id="vineEnlargedBackground" class="vine-enlarged-background"></div>
 `;
-document.body.insertAdjacentHTML('beforeend', vineAutomatedModal);
+document.body.insertAdjacentHTML('beforeend', vineEnlargedModal);
 
-// Add event listeners to the Vine Automated menu item and modal buttons
-document.getElementById('vineAutomatedLink').addEventListener('click', () => {
-    document.getElementById('vineAutomatedModal').style.display = 'block';
+// Add a fixed button to turn off the Vine Enlarged feature
+const vineEnlargedOffButton = `
+    <button id="vineEnlargedOffBtn" class="fixed-button" style="display: none;">Turn Off Vine Enlarged</button>
+`;
+document.body.insertAdjacentHTML('beforeend', vineEnlargedOffButton);
+
+// Add a horizontal box to the DOM
+const horizontalBox = `
+    <div id="horizontalBox" class="horizontal-box" style="display: none;"></div>
+`;
+document.body.insertAdjacentHTML('beforeend', horizontalBox);
+
+// Add event listeners to the Vine Enlarged menu item and modal buttons
+document.getElementById('vineEnlargedLink').addEventListener('click', () => {
+    document.getElementById('vineEnlargedModal').style.display = 'block';
+    document.getElementById('vineEnlargedBackground').style.display = 'block';
 });
 
-document.getElementById('vineAutomatedDoneBtn').addEventListener('click', () => {
-    document.getElementById('vineAutomatedModal').style.display = 'none';
-    const isChecked = document.getElementById('vineAutomatedToggle').checked;
-    document.getElementById('vineAutomatedStatus').textContent = isChecked ? 'Feature is on' : 'Feature is off';
-    localStorage.setItem('vineAutomated', isChecked);
-    applyVineAutomatedFeature(isChecked);
+document.getElementById('vineEnlargedDoneBtn').addEventListener('click', () => {
+    document.getElementById('vineEnlargedModal').style.display = 'none';
+    document.getElementById('vineEnlargedBackground').style.display = 'none';
 });
 
-document.getElementById('vineAutomatedToggle').addEventListener('change', () => {
-    const isChecked = document.getElementById('vineAutomatedToggle').checked;
-    document.getElementById('vineAutomatedStatus').textContent = isChecked ? 'Feature is on' : 'Feature is off';
-    localStorage.setItem('vineAutomated', isChecked);
+document.getElementById('vineEnlargedToggle').addEventListener('change', () => {
+    const isChecked = document.getElementById('vineEnlargedToggle').checked;
+    document.getElementById('vineEnlargedStatus').textContent = isChecked ? 'Feature is on' : 'Feature is off';
+    localStorage.setItem('vineEnlarged', isChecked);
+    applyVineEnlargedFeature(isChecked);
 });
 
-// Apply the Vine Automated feature based on the toggle status
-function applyVineAutomatedFeature(isOn) {
+document.getElementById('vineEnlargedBackground').addEventListener('click', () => {
+    document.getElementById('vineEnlargedModal').style.display = 'none';
+    document.getElementById('vineEnlargedBackground').style.display = 'none';
+});
+
+document.getElementById('vineEnlargedOffBtn').addEventListener('click', () => {
+    localStorage.setItem('vineEnlarged', false);
+    applyVineEnlargedFeature(false);
+    const vineEnlargedToggle = document.getElementById('vineEnlargedToggle');
+    const vineEnlargedStatus = document.getElementById('vineEnlargedStatus');
+    if (vineEnlargedToggle) {
+        vineEnlargedToggle.checked = false;
+    }
+    if (vineEnlargedStatus) {
+        vineEnlargedStatus.textContent = 'Feature is off';
+    }
+});
+
+// Apply the Vine Enlarged feature based on the toggle status
+function applyVineEnlargedFeature(isOn) {
+    const vineEnlargedOffBtn = document.getElementById('vineEnlargedOffBtn');
+    const horizontalBox = document.getElementById('horizontalBox');
     if (isOn) {
-        startVineAutomated();
+        startVineEnlarged();
+        vineEnlargedOffBtn.style.display = 'block';
+        const pagination = document.querySelector('.a-pagination');
+        if (pagination) {
+            horizontalBox.innerHTML = pagination.outerHTML;
+            horizontalBox.style.display = 'block';
+        } else {
+            horizontalBox.style.display = 'none';
+        }
     } else {
-        stopVineAutomated();
+        stopVineEnlarged();
+        vineEnlargedOffBtn.style.display = 'none';
+        horizontalBox.style.display = 'none';
     }
 }
 
-// Start the Vine Automated feature
-function startVineAutomated() {
+// Start the Vine Enlarged feature
+function startVineEnlarged() {
     observeGridItems(() => {
-        // Introduce a delay before checking for items
-        setTimeout(() => {
-            const scanItems = document.querySelectorAll('.vvp-item-tile');
-            const loadingItems = Array.from(scanItems).filter(item => {
-                const priceSpan = item.querySelector('.vineyard-price');
-                return priceSpan && priceSpan.textContent.includes('Loading ...');
-            });
+        const scanItems = document.querySelectorAll('.vvp-item-tile');
 
-            if (loadingItems.length === 0) {
-                showNoNewItemsPopup();
-                return;
-            }
+        scanItems.forEach(item => {
+            item.classList.add('enlarge-item');
+        });
 
-            scanItems.forEach(item => {
-                const priceSpan = item.querySelector('.vineyard-price');
-                if (priceSpan && !priceSpan.textContent.includes('Loading ...')) {
-                    item.classList.add('hide-item');
-                } else {
-                    item.classList.remove('hide-item');
-                }
-            });
+        const originalGrid = document.getElementById('vvp-items-grid');
+        originalGrid.style.position = 'fixed';
+        originalGrid.style.top = '50%';
+        originalGrid.style.left = '50%';
+        originalGrid.style.transform = 'translate(-50%, -50%)';
+        originalGrid.style.zIndex = '1001';
+        originalGrid.style.backgroundColor = 'rgb(29, 31, 38)';
+        originalGrid.style.border = '1px solid #ccc';
+        originalGrid.style.padding = '40px';
+        originalGrid.style.borderRadius = '8px';
+        originalGrid.style.maxWidth = '90%';
+        originalGrid.style.maxHeight = '90%';
+        originalGrid.style.overflowY = 'auto';
+        originalGrid.style.display = 'grid';
+        originalGrid.style.gridTemplateColumns = 'repeat(6, 1fr)';
+        originalGrid.style.gap = '10px';
+        originalGrid.style.boxShadow = '#ffd700 0px 0px 4px 3px';
 
-            const originalGrid = document.getElementById('vvp-items-grid');
-            originalGrid.style.position = 'fixed';
-            originalGrid.style.top = '50%';
-            originalGrid.style.left = '50%';
-            originalGrid.style.transform = 'translate(-50%, -50%)';
-            originalGrid.style.zIndex = '1001';
-            originalGrid.style.backgroundColor = 'rgb(29, 31, 38)';
-            originalGrid.style.border = '1px solid #ccc';
-            originalGrid.style.padding = '40px';
-            originalGrid.style.borderRadius = '8px';
-            originalGrid.style.maxWidth = '90%';
-            originalGrid.style.maxHeight = '90%';
-            originalGrid.style.overflowY = 'auto';
-            originalGrid.style.display = 'grid';
-            originalGrid.style.gridTemplateColumns = 'repeat(6, 1fr)';
-            originalGrid.style.gap = '10px';
-            originalGrid.style.boxShadow = '#ffd700 0px 0px 4px 3px';
+        const blurOverlay = document.createElement('div');
+        blurOverlay.id = 'blurOverlay';
+        blurOverlay.style.position = 'fixed';
+        blurOverlay.style.top = 0;
+        blurOverlay.style.left = 0;
+        blurOverlay.style.width = '100%';
+        blurOverlay.style.height = '100%';
+        blurOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        blurOverlay.style.backdropFilter = 'blur(10px)';
+        blurOverlay.style.zIndex = '1000';
 
-            const timer = document.createElement('div');
-            timer.id = 'scanningTimer';
-            timer.style.position = 'absolute';
-            timer.style.top = '10px';
-            timer.style.right = '10px';
-            timer.style.color = 'cornsilk';
-            timer.style.fontSize = '20px';
-            originalGrid.appendChild(timer);
+        document.body.appendChild(blurOverlay);
 
-            const pauseButton = document.createElement('button');
-            pauseButton.id = 'pauseButton';
-            pauseButton.textContent = 'Pause';
-            pauseButton.style.position = 'absolute';
-            pauseButton.style.top = '10px';
-            pauseButton.style.left = '10px';
-            pauseButton.style.margin = '-6px';
-            pauseButton.className = 'custom-button custom-button-primary';
-            originalGrid.appendChild(pauseButton);
-
-            const blurOverlay = document.createElement('div');
-            blurOverlay.id = 'blurOverlay';
-            blurOverlay.style.position = 'fixed';
-            blurOverlay.style.top = 0;
-            blurOverlay.style.left = 0;
-            blurOverlay.style.width = '100%';
-            blurOverlay.style.height = '100%';
-            blurOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-            blurOverlay.style.backdropFilter = 'blur(10px)';
-            blurOverlay.style.zIndex = '1000';
-
-            document.body.appendChild(blurOverlay);
-
-            let isPaused = false;
-            pauseButton.addEventListener('click', () => {
-                isPaused = !isPaused;
-                pauseButton.textContent = isPaused ? 'Resume' : 'Pause';
-            });
-
-            const intervalId = setInterval(() => {
-                if (Array.from(scanItems).every(item => {
-                    const priceSpan = item.querySelector('.vineyard-price');
-                    return priceSpan && !priceSpan.textContent.includes('Loading ...');
-                })) {
-                    clearInterval(intervalId);
-                    startTimer();
-                }
-            }, 500);
-
-            function startTimer() {
-                let timerValue = 5;
-                const timerInterval = setInterval(() => {
-                    if (!isPaused) {
-                        timerValue--;
-                        timer.textContent = `Time remaining: ${timerValue}s`;
-                        if (timerValue <= 0) {
-                            clearInterval(timerInterval);
-                            nextPage();
-                        }
-                    }
-                }, 1000);
-                // Save timer interval ID to stop it later if needed
-                localStorage.setItem('timerIntervalId', timerInterval);
-            }
-        }, 2000); // Delay of 3 seconds before checking for items
+        // Add pagination to horizontal box if available
+        const pagination = document.querySelector('.a-pagination');
+        if (pagination) {
+            const horizontalBox = document.getElementById('horizontalBox');
+            horizontalBox.innerHTML = pagination.outerHTML;
+            horizontalBox.style.display = 'block';
+        }
     });
 }
 
-// Stop the Vine Automated feature
-function stopVineAutomated() {
+// Stop the Vine Enlarged feature
+function stopVineEnlarged() {
     const originalGrid = document.getElementById('vvp-items-grid');
     const blurOverlay = document.getElementById('blurOverlay');
     const scanItems = document.querySelectorAll('.vvp-item-tile');
+    const horizontalBox = document.getElementById('horizontalBox');
+
     scanItems.forEach(item => {
-        item.classList.remove('hide-item');
+        item.classList.remove('enlarge-item');
     });
     if (originalGrid) {
         originalGrid.removeAttribute('style'); // Remove the styles applied to make it fixed
@@ -3417,25 +3402,12 @@ function stopVineAutomated() {
     if (blurOverlay) {
         blurOverlay.remove();
     }
-    // Clear the timer interval if running
-    const timerIntervalId = localStorage.getItem('timerIntervalId');
-    if (timerIntervalId) {
-        clearInterval(timerIntervalId);
-        localStorage.removeItem(timerIntervalId);
+    if (horizontalBox) {
+        horizontalBox.style.display = 'none'; // Hide the horizontal box
     }
 }
 
-// Proceed to the next page
-function nextPage() {
-    const nextPageLink = document.querySelector('.a-pagination .a-last a');
-    if (nextPageLink) {
-        nextPageLink.click();
-        // Wait for the new page to load and start the automated process again
-        observeGridItems(startVineAutomated);
-    }
-}
-
-// Wait for the new items to load before starting the automated process
+// Wait for the new items to load before starting the enlarged view
 function observeGridItems(callback) {
     const targetNode = document.getElementById('vvp-items-grid');
     if (targetNode) {
@@ -3454,107 +3426,184 @@ function observeGridItems(callback) {
     }
 }
 
-// Show popup for no new items
-function showNoNewItemsPopup() {
-    const popup = document.createElement('div');
-    popup.id = 'noNewItemsPopup';
-    popup.style.position = 'fixed';
-    popup.style.top = '50%';
-    popup.style.left = '50%';
-    popup.style.transform = 'translate(-50%, -50%)';
-    popup.style.zIndex = '1001';
-    popup.style.backgroundColor = 'rgb(29, 31, 38)';
-    popup.style.border = '1px solid #ccc';
-    popup.style.padding = '40px';
-    popup.style.borderRadius = '8px';
-    popup.style.textAlign = 'center';
-    popup.style.fontSize = '18px';
-    popup.style.color = 'cornsilk';
-    popup.style.boxShadow = '#ffd700 0px 0px 4px 3px !important';
+// Load the initial state of the Vine Enlarged feature
+const isOn = localStorage.getItem('vineEnlarged') === 'true';
+const vineEnlargedToggle = document.getElementById('vineEnlargedToggle');
+const vineEnlargedStatus = document.getElementById('vineEnlargedStatus');
 
-    let timerValue = 5;
-    popup.textContent = `No new items. Moving on in ${timerValue}s`;
-
-    document.body.appendChild(popup);
-
-    const popupTimer = setInterval(() => {
-        timerValue--;
-        popup.textContent = `No new items. Moving on in ${timerValue}s`;
-        if (timerValue <= 0) {
-            clearInterval(popupTimer);
-            popup.remove();
-            nextPage();
-        }
-    }, 1000);
+if (vineEnlargedToggle) {
+    vineEnlargedToggle.checked = isOn;
 }
 
-// Load the initial state of the Vine Automated feature
-const isOn = localStorage.getItem('vineAutomated') === 'true';
-const vineAutomatedToggle = document.getElementById('vineAutomatedToggle');
-const vineAutomatedStatus = document.getElementById('vineAutomatedStatus');
-
-if (vineAutomatedToggle) {
-    vineAutomatedToggle.checked = isOn;
+if (vineEnlargedStatus) {
+    vineEnlargedStatus.textContent = isOn ? 'Feature is on' : 'Feature is off';
 }
 
-if (vineAutomatedStatus) {
-    vineAutomatedStatus.textContent = isOn ? 'Feature is on' : 'Feature is off';
-}
-
-// Function to start the Vine Automated feature once the grid is loaded
-function startVineAutomatedWhenGridLoads() {
-    observeGridItems(startVineAutomated);
+// Function to start the Vine Enlarged feature once the grid is loaded
+function startVineEnlargedWhenGridLoads() {
+    observeGridItems(startVineEnlarged);
 }
 
 if (isOn) {
-    startVineAutomatedWhenGridLoads();
+    startVineEnlargedWhenGridLoads();
+    document.getElementById('vineEnlargedOffBtn').style.display = 'block';
 }
 
-// Event listener to turn off the feature with ESC key
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-        stopVineAutomated();
-        localStorage.setItem('vineAutomated', 'false');
-        const vineAutomatedToggle = document.getElementById('vineAutomatedToggle');
-        const vineAutomatedStatus = document.getElementById('vineAutomatedStatus');
+if (isOn) {
+    // Select the pagination element
+    const pagination = document.querySelector('.a-pagination');
+    if (pagination) {
+        // Select the horizontal box element
+        const horizontalBox = document.getElementById('horizontalBox');
+        if (horizontalBox) {
+            // Set the inner HTML of horizontalBox to the outer HTML of pagination
+            horizontalBox.innerHTML = pagination.outerHTML;
 
-        if (vineAutomatedToggle) {
-            vineAutomatedToggle.checked = false;
-        }
+            // Create a style element with custom styles
+            const style = document.createElement('style');
+            style.type = 'text/css';
+            style.innerHTML = `
+                #horizontalBox .a-pagination {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: stretch;
+                    margin: 15px;
+                }
+                #horizontalBox .a-pagination li {
+                    list-style: none;
+                    margin: 5px 0;
+                }
+                #horizontalBox .a-pagination a,
+                #horizontalBox .a-pagination span {
+                    display: block;
+                    padding: 10px 15px;
+                    text-decoration: none;
+                    background-color: #1d1f26;
+                    border: 2px solid #ff4500;
+                    color: #00ffff;
+                    border-radius: 20px;
+                    text-align: center;
+                    width: 100%;
+                }
+                #horizontalBox .a-pagination .a-selected a {
+                    background-color: #ff4500;
+                    color: white;
+                }
+                #horizontalBox .a-pagination .a-disabled span {
+                    color: grey;
+                    background-color: transparent;
+                    border-color: grey;
+                }
+            `;
+            // Append the style element to the document head
+            document.head.appendChild(style);
 
-        if (vineAutomatedStatus) {
-            vineAutomatedStatus.textContent = 'Feature is off';
-        }
-
-        // Remove the pause button
-        const pauseButton = document.getElementById('pauseButton');
-        if (pauseButton) {
-            pauseButton.remove();
-        }
-
-        // Stop the timer that starts when scan finishes
-        const timerIntervalId = localStorage.getItem('timerIntervalId');
-        if (timerIntervalId) {
-            clearInterval(timerIntervalId);
-            localStorage.removeItem('timerIntervalId');
-        }
-
-        // Remove the timer text
-        const scanningTimer = document.getElementById('scanningTimer');
-        if (scanningTimer) {
-            scanningTimer.remove();
+            // Display the horizontal box
+            horizontalBox.style.display = 'block';
         }
     }
-});
+}
 
-
-
-// CSS to hide items
+// CSS to enlarge items and style the horizontal box
 const style = document.createElement('style');
 style.type = 'text/css';
 style.innerHTML = `
-    .hide-item {
-        display: none !important;
+    .vine-enlarged-background {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+    .vine-enlarged-modal-content {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1001;
+        background-color: #1d1f26;
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .vine-enlarged-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .vine-enlarged-body {
+        margin-top: 10px;
+    }
+    .vine-enlarged-footer {
+        margin-top: 10px;
+        text-align: right;
+    }
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 34px;
+        height: 20px;
+    }
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 20px;
+    }
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 12px;
+        width: 12px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+    }
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+    input:checked + .slider:before {
+        transform: translateX(14px);
+    }
+    .fixed-button {
+        position: fixed;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        z-index: 1002;
+        background-color: #ff0000;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: none;
+    }
+    .horizontal-box {
+        position: fixed;
+        top: 50%;
+        left: 83%;
+        z-index: 1003;
+        transform: translateY(-50%);
+        overflow-y: auto;
+        display: none;
     }
 `;
 document.head.appendChild(style);
@@ -3701,7 +3750,7 @@ if (vineItemsTab) {
     newVineItemsTab.id = 'vvp-vine-items-tab';
     newVineItemsTab.className = 'a-tab-heading a-active';
     newVineItemsTab.setAttribute('role', 'presentation');
-    newVineItemsTab.innerHTML = '<a href="https://www.amazon.com/vine/vine-items?queue=encore" role="tab" aria-selected="true">Vine Items</a>';
+    newVineItemsTab.innerHTML = '<a href="https://www.amazon.com/vine/vine-items?queue=encore" role="tab" aria-selected="false">Vine Items</a>';
 
     // Replace the old list item with the new one
     vineItemsTab.parentNode.replaceChild(newVineItemsTab, vineItemsTab);
@@ -4132,3 +4181,273 @@ if (document.readyState === 'loading') {
 
 
 
+(function() {
+    // Wait for the DOM to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initEZReviewButton);
+    } else {
+        initEZReviewButton();
+    }
+
+    function initEZReviewButton() {
+        // Get the Reviewed button container
+        const reviewButtonContainer = document.getElementById('vvp-review-button-container');
+
+        // Create the EZ Review button
+        const ezReviewButton = document.createElement('span');
+        ezReviewButton.id = 'ez-review-button';
+        ezReviewButton.className = 'a-button a-button-normal a-button-toggle';
+        ezReviewButton.innerHTML = '<span class="a-button-inner"><a href="javascript:void(0);" class="a-button-text">EZ Review</a></span>';
+
+        // Append the EZ Review button to the right of the Reviewed button
+        reviewButtonContainer.appendChild(ezReviewButton);
+
+        // Add event listener to the EZ Review button
+        ezReviewButton.addEventListener('click', toggleEZReview);
+
+        // Function to toggle the EZ Review button state
+        function toggleEZReview() {
+            const isActive = ezReviewButton.classList.contains('a-button-selected');
+            ezReviewButton.classList.toggle('a-button-selected', !isActive);
+            ezReviewButton.classList.toggle('a-button-normal', isActive);
+            ezReviewButton.querySelector('.a-button-text').textContent = !isActive ? 'EZ Review (On)' : 'EZ Review';
+
+            // Toggle EZ Review functionality
+            if (!isActive) {
+                enableEZReview();
+            } else {
+                disableEZReview();
+            }
+        }
+
+        // Function to enable EZ Review functionality
+        function enableEZReview() {
+            // Add event listener to all "Review item" buttons
+            document.querySelectorAll('a[name="vvp-reviews-table--review-item-btn"]').forEach(button => {
+                button.addEventListener('click', showEZReviewWindow);
+            });
+        }
+
+        // Function to disable EZ Review functionality
+        function disableEZReview() {
+            // Remove event listener from all "Review item" buttons
+            document.querySelectorAll('a[name="vvp-reviews-table--review-item-btn"]').forEach(button => {
+                button.removeEventListener('click', showEZReviewWindow);
+            });
+        }
+
+        // Function to inject custom CSS into the iframe
+        function injectCSS(iframe) {
+            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            const style = iframeDocument.createElement('style');
+            style.innerHTML = `
+                body {
+                    background-color: #8f94a6; /* Example: Change the background color */
+                    font-family: Arial, sans-serif;
+                    color: white;
+                }
+                .a-section {
+                    background-color: #222f3e;
+                }
+                .a-color-tertiary {
+                    color: #ffffff !important;
+                }
+                div#rhf-container {
+                    background-color: #222f3e;
+                }
+                div#rhf {
+                    background-color: #222f3e;
+                }
+                #rhf .rhf-border a {
+                    color: cyan;
+                }
+                .a-price[data-a-color=base] {
+                    color: cyan;
+                }
+                .a-color-base {
+                    color: cyan;
+                }
+                #rhf .rhf-border {
+                    border: unset !important;
+                }
+                .a-color-secondary {
+                    color: cyan !important;
+                }
+                .a-profile-name {
+                    color: white;
+                }
+                form.ryp__review-form__form {
+                    border: 5px solid gold;
+                }
+                .ryp__desktop .ryp__profile-container {
+                    display: flex;
+                    justify-content: flex-start;
+                }
+
+                /* style submited page */
+
+                .a-box.a-alert.a-alert-success.ryp__thank-you-alert {
+                    background-color: #222f3e;
+                    color: cyan;
+                }
+                .a-box-inner.a-alert-container {
+                    background-color: #222f3e;
+                }
+                .a-color-success {
+                    color: #ff8b8b !important;
+                }
+                .a-section.ryp__container.ryp__container__padding {
+                    width: unset !important;
+                }
+                .a-color-base {
+                    color: cyan !important;
+                }
+                .ryp__review_progress-bar-title-container {
+                    background-color: unset !important;
+                }
+                
+                /* remove elements to leave only review table */
+
+                header#navbar-main {
+                    display: none;
+                }
+                div#rhf {
+                    display: none;
+                }
+                div#navFooter {
+                    display: none;
+                }
+
+                /* Add more custom styles here */
+            `;
+            iframeDocument.head.appendChild(style);
+        }
+
+        const openReviews = {};
+
+        // Function to show EZ Review window
+        function showEZReviewWindow(event) {
+            event.preventDefault();
+
+            // Get the link of the "Review item" button
+            const reviewLink = event.currentTarget.href;
+            const reviewText = event.currentTarget.textContent.trim();
+
+            // Check if the review link is already open
+            if (openReviews[reviewLink]) {
+                // Switch to the existing tab and iframe and make sure the window is displayed
+                const { tabId, iframeId } = openReviews[reviewLink];
+                document.getElementById('ez-review-window').style.display = 'block';
+                switchToTab(tabId, iframeId);
+                return;
+            }
+
+            // Create the EZ Review window if it doesn't exist
+            let ezReviewWindow = document.getElementById('ez-review-window');
+            if (!ezReviewWindow) {
+                ezReviewWindow = document.createElement('div');
+                ezReviewWindow.id = 'ez-review-window';
+                ezReviewWindow.style.position = 'fixed';
+                ezReviewWindow.style.top = '50%';
+                ezReviewWindow.style.left = '50%';
+                ezReviewWindow.style.transform = 'translate(-50%, -50%)';
+                ezReviewWindow.style.backgroundColor = 'rgb(29 31 38)';
+                ezReviewWindow.style.border = '3px solid rgb(255 0 0)';
+                ezReviewWindow.style.padding = '20px';
+                ezReviewWindow.style.zIndex = '1000';
+                ezReviewWindow.style.width = '80%';
+                ezReviewWindow.style.height = '80%';
+                ezReviewWindow.style.overflow = 'hidden';
+                ezReviewWindow.innerHTML = `
+                    <div style="display: flex; justify-content: space-between;">
+                        <div id="ez-review-tabs"></div>
+                        <button id="ez-review-close" style="background: #f00; color: #fff; border: none; padding: 5px;">X</button>
+                    </div>
+                    <div id="ez-review-iframes" style="height: calc(100% - 40px); position: relative;"></div>
+                `;
+                document.body.appendChild(ezReviewWindow);
+
+                // Add event listener to the close button
+                document.getElementById('ez-review-close').addEventListener('click', () => {
+                    ezReviewWindow.style.display = 'none';
+                });
+
+                // Add event listener for Escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        ezReviewWindow.style.display = 'none';
+                    }
+                });
+
+                // Add event listener for clicks outside the EZ Review window
+                document.addEventListener('mousedown', (e) => {
+                    if (!ezReviewWindow.contains(e.target) && e.target !== ezReviewButton) {
+                        ezReviewWindow.style.display = 'none';
+                    }
+                });
+            } else {
+                ezReviewWindow.style.display = 'block';
+            }
+
+            // Create new tab and iframe for the review link
+            const tabId = `ez-review-tab-${Date.now()}`;
+            const iframeId = `ez-review-iframe-${Date.now()}`;
+
+            // Add the new tab
+            const ezReviewTabs = document.getElementById('ez-review-tabs');
+            const newTab = document.createElement('button');
+            newTab.id = tabId;
+            newTab.className = 'ez-review-tab';
+            newTab.style.background = '#fff';
+            newTab.style.color = '#000';
+            newTab.style.border = 'none';
+            newTab.style.padding = '5px';
+            newTab.textContent = reviewText;
+            ezReviewTabs.appendChild(newTab);
+
+            // Add the new iframe
+            const ezReviewIframes = document.getElementById('ez-review-iframes');
+            const newIframe = document.createElement('iframe');
+            newIframe.id = iframeId;
+            newIframe.src = reviewLink;
+            newIframe.style.width = '100%';
+            newIframe.style.height = '100%';
+            newIframe.style.border = 'none';
+            newIframe.style.position = 'absolute';
+            newIframe.style.top = '0';
+            newIframe.style.left = '0';
+            newIframe.style.display = 'none';
+            ezReviewIframes.appendChild(newIframe);
+
+            // Add the review link to the openReviews map
+            openReviews[reviewLink] = { tabId, iframeId };
+
+            // Add event listener to the new tab
+            newTab.addEventListener('click', () => {
+                switchToTab(tabId, iframeId);
+            });
+
+            // Automatically switch to the new tab and iframe
+            newTab.click();
+
+            // Inject CSS once the iframe is loaded
+            newIframe.addEventListener('load', () => {
+                injectCSS(newIframe);
+            });
+        }
+
+        // Function to switch to a specific tab and iframe
+        function switchToTab(tabId, iframeId) {
+            document.querySelectorAll('.ez-review-tab').forEach(tab => {
+                tab.style.background = '#fff';
+                tab.style.color = '#000';
+            });
+            document.querySelectorAll('#ez-review-iframes iframe').forEach(iframe => {
+                iframe.style.display = 'none';
+            });
+            document.getElementById(tabId).style.background = '#f00';
+            document.getElementById(tabId).style.color = '#fff';
+            document.getElementById(iframeId).style.display = 'block';
+        }
+    }
+})();

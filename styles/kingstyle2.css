@@ -4169,7 +4169,7 @@ div#account-extra-stats {
   height: 112px;
   margin-top: 5px;
   display: flex;
-  width: auto;
+  width: auto !important;
   margin-bottom: -55px;
   margin-left: -128px;
   overflow: hidden;
@@ -4364,4 +4364,213 @@ div#customizationInputs {
 
 select#custom-pointer {
   background-color: aliceblue;
+}
+
+
+/* this changes the style for the review tab */
+
+.vvp-reviews-table {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 0;
+    list-style: none;
+}
+
+.vvp-reviews-table--row {
+    max-width: calc(20% - 12px); /* Ensuring a maximum width */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid;
+    border-color: rgb(255, 207, 64) !important;
+    padding: 16px;
+    border-radius: 8px;
+    box-sizing: border-box; /* Ensure padding and border are included in the width calculation */
+    height: auto; /* Adjust this if you want a fixed height */
+}
+
+.vvp-reviews-table--image-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px; /* Fixed height for image container */
+}
+
+.vvp-reviews-table--image-col img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.vvp-reviews-table--text-col {
+    margin-top: 10px;
+    text-align: center;
+    flex-grow: 1; /* Allow text column to grow */
+    overflow: hidden; /* Ensure text does not overflow */
+}
+
+.vvp-reviews-table--order-date-heading,
+.vvp-reviews-table--review-content-heading,
+.vvp-reviews-table--actions-col {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.vvp-reviews-table--text-col a {
+    text-decoration: none;
+    color: #0073bb;
+}
+
+.vvp-reviews-table--actions-col .a-button {
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.vvp-reviews-table--heading-row {
+    display: none; /* Hide the original headings to use a grid layout */
+}
+
+tr.vvp-reviews-table--row {
+    display: inline-table;
+}
+
+.vvp-reviews-table td, .vvp-reviews-table th {
+    padding: 0px !important;
+}
+
+.vvp-reviews-table .vvp-reviews-table--row {
+    margin: 0px 0px 10px 10px;
+    display: inline-flex;
+}
+
+.vvp-reviews-table .vvp-reviews-table--action-btn {
+    margin: unset !important;
+    max-width: unset !important;
+    width: 100%;
+    white-space: nowrap;
+}
+
+.vvp-reviews-table .vvp-reviews-table--image-col {
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+tr.vvp-reviews-table--heading-row {
+    display: none;
+}
+
+.vvp-reviews-table--heading-top {
+    text-align: center;
+}
+
+.vvp-items-button-and-search-container {
+    display: flex;
+    justify-content: center;
+}
+
+/* this changes the style for the orders tab */
+
+
+.vvp-orders-table {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.vvp-orders-table--row {
+  max-width: calc(20% - 12px); /* Ensuring a maximum width */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid;
+  border-color: rgb(255, 207, 64) !important;
+  padding: 16px;
+  border-radius: 8px;
+  box-sizing: border-box; /* Ensure padding and border are included in the width calculation */
+  height: auto; /* Adjust this if you want a fixed height */
+}
+
+.vvp-orders-table--image-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px; /* Fixed height for image container */
+}
+
+.vvp-orders-table--image-col img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.vvp-orders-table--text-col {
+  margin-top: 10px;
+  text-align: center;
+  flex-grow: 1; /* Allow text column to grow */
+  overflow: hidden; /* Ensure text does not overflow */
+}
+
+.vvp-orders-table--order-date-heading,
+.vvp-orders-table--review-content-heading,
+.vvp-orders-table--actions-col {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.vvp-orders-table--text-col a {
+  text-decoration: none;
+  color: #0073bb;
+}
+
+.vvp-orders-table--actions-col .a-button {
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.vvp-orders-table--heading-row {
+  display: none; /* Hide the original headings to use a grid layout */
+}
+
+tr.vvp-orders-table--row {
+  display: inline-table;
+}
+
+.vvp-orders-table td, .vvp-orders-table th {
+  padding: 0px !important;
+}
+
+.vvp-orders-table .vvp-orders-table--row {
+  margin: 0px 0px 10px 10px;
+  display: inline-flex;
+}
+
+.vvp-orders-table .vvp-orders-table--action-btn {
+  margin: unset !important;
+  max-width: unset !important;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.vvp-orders-table .vvp-orders-table--image-col {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+tr.vvp-orders-table--heading-row {
+  display: none;
+}
+
+.vvp-orders-table--heading-top {
+  text-align: center;
+}
+
+td.vvp-orders-table--text-col.vvp-text-align-right {
+  display: flex;
+  justify-content: center;
+  font-size: large;
 }
